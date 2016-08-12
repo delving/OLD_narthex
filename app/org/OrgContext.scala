@@ -30,6 +30,8 @@ import mapping.PeriodicSkosifyCheck.ScanForWork
 import mapping._
 import org.ActorStore.NXActor
 import org.OrgActor.DatasetsCountCategories
+import org.StormPathAuthenticationService.StormPathConfig
+import play.api.libs.ws.WS
 import play.api.{Logger, Play}
 import play.libs.Akka._
 import services.FileHandling.clearDir
@@ -62,7 +64,7 @@ object OrgContext {
 
   val USER_HOME = System.getProperty("user.home")
   val NARTHEX = new File(USER_HOME, "NarthexFiles")
-
+  val stormPathConfig = StormPathConfig(configString("stormpath.appId"), configString("stormpath.key"), configString("stormpath.secret"))
   lazy val API_ACCESS_KEYS = secretList("api.accessKeys")
 
   lazy val HARVEST_TIMEOUT = config.getInt("harvest.timeout").getOrElse(3 * 60 * 1000)
@@ -132,6 +134,10 @@ object OrgContext {
   lazy val authenticationService : AuthenticationService = configString("authenticationMode") match {
     case "mock" => new MockAuthenticationService
     case "ts" => new TsBasedAuthenticationService
+    case "sp" => {
+      import play.api.Play.current
+      new StormPathAuthenticationService(WS.client, stormPathConfig)
+    }
     case _ => throw new RuntimeException(s"Unknown authentication mode specified")
   }
 

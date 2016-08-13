@@ -4,7 +4,7 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%date - %coloredLevel %X{akkaSource} - %message%n%xException{5}</pattern>
+      <pattern>%date - %coloredLevel %X{akkaSource}  %class:%line- %message%n%xException{5}</pattern>
     </encoder>
   </appender>
 
@@ -27,5 +27,5 @@
   <root level="ERROR">
     <appender-ref ref="STDOUT" />
   </root>
-  
+
 </configuration>

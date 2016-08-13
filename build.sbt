@@ -40,6 +40,7 @@ libraryDependencies ++= Seq(
   "de.leanovate.play-mockws" %% "play-mockws" % "2.4.2" % "test",
   "org.scalautils" % "scalautils_2.11" % "2.1.3",
   "com.typesafe.akka" % "akka-testkit_2.11" % "2.4.8" % "test",
+  "com.typesafe.akka" % "akka-slf4j_2.11" % "2.4.8" % "test",
   "org.scalatestplus" %% "play" % "1.4.0" % "test",
   "commons-io" % "commons-io" % "2.4",
   "com.rockymadden.stringmetric" %% "stringmetric-core" % "0.27.4",

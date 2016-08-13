@@ -64,7 +64,7 @@ object OrgContext {
 
   val USER_HOME = System.getProperty("user.home")
   val NARTHEX = new File(USER_HOME, "NarthexFiles")
-  val stormPathConfig = StormPathConfig(configString("stormpath.appId"), configString("stormpath.key"), configString("stormpath.secret"))
+
   lazy val API_ACCESS_KEYS = secretList("api.accessKeys")
 
   lazy val HARVEST_TIMEOUT = config.getInt("harvest.timeout").getOrElse(3 * 60 * 1000)
@@ -131,15 +131,18 @@ object OrgContext {
   val check = Future(orgContext.sipFactory.prefixRepos.map(repo => repo.compareWithSchemasDelvingEu()))
   check.onFailure { case e: Exception => Logger.error("Failed to check schemas", e) }
 
-  lazy val authenticationService : AuthenticationService = configString("authenticationMode") match {
+  lazy val authenticationService : AuthenticationService = configString("authenticationProvider") match {
     case "mock" => new MockAuthenticationService
     case "ts" => new TsBasedAuthenticationService
-    case "sp" => {
+    case "stormpath" => {
       import play.api.Play.current
+      val stormPathConfig = StormPathConfig(configString("stormpath.appId"), configString("stormpath.key"), configString("stormpath.secret"))
       new StormPathAuthenticationService(WS.client, stormPathConfig)
     }
     case _ => throw new RuntimeException(s"Unknown authentication mode specified")
   }
+
+
 
   def actorWork(actorContext: ActorContext)(block: => Unit) = {
     try {

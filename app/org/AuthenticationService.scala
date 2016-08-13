@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 
 import org.ActorStore.{NXProfile, NXActor}
-import org.StormPathAuthenticationService.StormPathConfig
+import org.StormPathAuthenticationService.{ErrorResponse, AccountDetailsResponse, AuthenticateResponse, StormPathConfig}
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient}
@@ -67,13 +67,14 @@ object StormPathAuthenticationService {
   val STORMPATH_BASE_URL = "https://api.stormpath.com/v1/"
   case class StormPathConfig(appId: String, apiKey: String, apiSecret: String)
 
+  case class AuthenticateResponse(href: String)
+  case class ErrorResponse(status: Int, code: Int, message: String, developerMessage: String, moreInfo: String)
+  case class AccountDetailsResponse(username: String, givenName: String, surname: String, email: String)
 }
 
 class StormPathAuthenticationService(val wsClient: WSClient, val config: StormPathConfig)(implicit ec: ExecutionContext) extends AuthenticationService {
 
-  case class AuthenticateResponse(href: String)
-  case class ErrorResponse(status: Int, code: Int, message: String, developerMessage: String, moreInfo: String)
-  case class AccountDetailsResponse(foo: String)
+
 
   import StormPathAuthenticationService.STORMPATH_BASE_URL
 
@@ -82,22 +83,25 @@ class StormPathAuthenticationService(val wsClient: WSClient, val config: StormPa
   override def oAuthenticated(actorName: String) = ???
 
   private def base64Of(uid: String, password: String): String = {
-    val concatenated = s"uid:password".getBytes(StandardCharsets.UTF_8)
+    val concatenated = s"$uid:$password".getBytes(StandardCharsets.UTF_8)
     Base64.getEncoder.encodeToString(concatenated)
   }
 
   private def getAccount(authResult: Either[AuthenticateResponse, ErrorResponse]): Future[Option[AccountDetailsResponse]] = {
     authResult match {
       case Right(failed) => Future.successful(None)
-      case Left(success) => {
+      case Left(success) =>
         wsClient.url(success.href).
           withAuth(config.apiKey, config.apiSecret, WSAuthScheme.BASIC).
           get().
-          map(detailsJson => {
-            Logger.info(s"json: $detailsJson")
-            Some(AccountDetailsResponse("bar"))
+          map(response => {
+            Logger.info(s"json: $response.json")
+            val username = (response.json \ "username").as[String]
+            val email = (response.json \ "email").as[String]
+            val surname = (response.json \ "surname").as[String]
+            val givenName = (response.json \ "givenName").as[String]
+            Some(AccountDetailsResponse(username, givenName, surname, email))
           })
-      }
     }
   }
 
@@ -116,34 +120,32 @@ class StormPathAuthenticationService(val wsClient: WSClient, val config: StormPa
   }
 
   private def parseAuthenticateResponse(json: JsValue): Either[AuthenticateResponse, ErrorResponse] = {
-    Logger.info(s"received ${json}")
+    Logger.debug(s"received $json")
     // see if there is an error, if there isn't just try to parse the account
     val maybeValue: Option[JsValue] = (json \ "account").toOption
-    if (!maybeValue.isDefined) {
+    if (maybeValue.isEmpty) {
       Right(parseStormpathError(json))
     } else {
-      val href = (json \ "account" \ "href").get
-      Left(new AuthenticateResponse(href.toString))
+      val href = (json \ "account" \ "href").as[String]
+      Left(new AuthenticateResponse(href))
     }
   }
 
   private def parseStormpathError(json: JsValue): ErrorResponse = {
     ErrorResponse((json \ "status").as[Int],
       (json \ "code").as[Int],
-      (json \ "message").get.toString(),
-      (json \ "developerMessage").get.toString(),
-      (json \ "moreInfo").get.toString()
+      (json \ "message").as[String],
+      (json \ "developerMessage").as[String],
+      (json \ "moreInfo").as[String]
     )
   }
   override def authenticate(actorName: String, password: String) = {
     doAuthenticateCall(actorName, password).
       flatMap { eitherResponseOrError =>
         getAccount(eitherResponseOrError)
-      }.map { accountDetailsOpt =>
-        accountDetailsOpt match {
-          case None => None
-          case Some(accountDetails) => Some(NXActor(accountDetails.foo, None, None))
-        }
+      }.map {
+      case None => None
+      case Some(accountDetails) => Some(NXActor(accountDetails.username, None, Some(NXProfile(accountDetails.givenName, accountDetails.surname, accountDetails.email))))
     }
   }
 }

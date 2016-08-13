@@ -15,11 +15,6 @@ class CRM(is: InputStream) {
 
   val model = ModelFactory.createDefaultModel().read(is, null)
 
-  //  just for exploration
-  //  model.listStatements().toList.map { s =>
-  //    if (s.toString.contains("P55")) println(s)
-  //  }
-
   def list(s: Option[Resource], p: Option[Property], o: Option[Resource]): util.List[Statement] =
     model.listStatements(s.orNull, p.orNull, o.orNull).toList
 
@@ -106,17 +101,14 @@ class TestCRM extends FlatSpec with Matchers {
       val indent = "   " * level
       val range = crmProperty.rangeClass.map(_.toString).getOrElse("Literal")
       val count = crmProperty.rangeClass.map(countTree).getOrElse(0)
-      println(s"$indent: $crmProperty -> $range ($count)")
       crmProperty.subProperties.foreach(showProperty(_, level + 1))
     }
 
     def showClass(crmClass: CRM.CRMClass, withProperties: Boolean, level: Int = 0): Unit = {
       val indent = "   " * level
-      println(s"$indent$crmClass")
       if (withProperties) crmClass.properties.foreach(showProperty(_, level + 1))
       crmClass.subClasses.foreach(showClass(_, withProperties, level + 1))
     }
 
-//    showClass(CRM.rootClass, withProperties = true)
   }
 }

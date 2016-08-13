@@ -39,8 +39,6 @@ class TestSourceRepo extends FlatSpec with Matchers {
       "and what about a very long value where nobody really knows when it will end, but we can just guess"
     ).map(SHA256_FILTER.filter)
 
-//    hashed.map(h => println(s""" "$h", """))
-
     val exprectedHashed = List(
       "O2JMHLJVIC5YAPACBM5O4ZWNRCDREMRU5IGG44KDYCW5OP7UGHWQ",
       "H7CMZ7TULBYOFQGZT5Y7GD7QMVWI33OUDTA5PU6TO2YNXZUF4LZQ",

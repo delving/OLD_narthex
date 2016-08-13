@@ -28,7 +28,6 @@ trait PrepareEDM {
     else {
       sourceFile
     }
-    println(s"including $file")
     zos.putNextEntry(new ZipEntry(file.getName))
     val is = new FileInputStream(file)
     IOUtils.copy(is, zos)
@@ -41,7 +40,6 @@ trait PrepareEDM {
     val zos = new ZipOutputStream(new FileOutputStream(sipZipFile))
     source.listFiles().toList.filter(!_.getName.endsWith(".gz")).foreach(f => copyFile(zos, f))
     zos.close()
-    println(s"created $sipZipFile")
     new SipRepo(sipsDir, dirName, rdfBaseUrl)
   }
 

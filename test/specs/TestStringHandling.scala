@@ -16,13 +16,9 @@ class TestStringHandling extends FlatSpec with Matchers {
     csvFiles.foreach { csvFile =>
       val name = csvFile.getName
       val reader = FileHandling.createReader(csvFile)
-      println(csvFile.toString)
       val xmlFile = new File(csvFile.getParent, s"$name.xml")
       val writer = FileHandling.createWriter(xmlFile)
       csvToXML(reader, writer)
-//      IOUtils.readLines(FileHandling.createReader(xmlFile)).foreach { line =>
-//        println(s"$name: $line")
-//      }
     }
   }
 }

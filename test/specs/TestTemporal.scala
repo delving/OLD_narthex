@@ -9,13 +9,10 @@ class TestTemporal extends FlatSpec with Matchers{
   "date parsing" should "be tolerant" in {
 
     DateTimeZone.setDefault(DateTimeZone.forID("Europe/Amsterdam"))
-    println(s"DateTime: ${new DateTime()}")
-    println(s"LocalDateTime: ${new LocalDateTime()}")
 
     def xform(string: String) = {
       val t = stringToTime(string)
       val s = timeToString(t)
-      println(s"$string =XSD=> $s")
       s
     }
 
@@ -29,7 +26,6 @@ class TestTemporal extends FlatSpec with Matchers{
     def utc(string: String) = {
       val t = stringToTime(string)
       val s = timeToUTCString(t)
-      println(s"$string =UTC=> $s")
       s
     }
 
@@ -37,8 +33,6 @@ class TestTemporal extends FlatSpec with Matchers{
     utc("2014-11-06T07:44:08+01:00") should be ("2014-11-06T06:44:08Z")
     utc("2014-11-06T07:44:08Z") should be ("2014-11-06T07:44:08Z")
     utc("2014-11-06") should be ("2014-11-05T23:00:00Z")
-
-    println(nowFileName("evil", ".hex"))
 
     fileNameToLocalString("frans-hals-museum__2014_11_24_16_19__icn.sip.zip") should be("2014-11-24T16:19:00")
     fileNameToLocalString("brabant-collectie-prent__2014_11_17_15_33.sip.zip") should be("2014-11-17T15:33:00")

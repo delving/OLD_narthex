@@ -26,7 +26,7 @@ import dataset.SipRepo.{AvailableSip, SIP_EXTENSION}
 import dataset._
 import harvest.PeriodicHarvest
 import harvest.PeriodicHarvest.ScanForHarvests
-import mapping.PeriodicSkosifyCheck.ScanForWork
+import init.AuthenticationMode
 import mapping._
 import org.ActorStore.NXActor
 import org.OrgActor.DatasetsCountCategories
@@ -126,21 +126,21 @@ object OrgContext {
   val harvestTicker = system.scheduler.schedule(1.minute, 1.minute, periodicHarvest, ScanForHarvests)
   val periodicSkosifyCheck = system.actorOf(PeriodicSkosifyCheck.props(), "PeriodicSkosifyCheck")
 //  val skosifyTicker = system.scheduler.schedule(30.seconds, 30.seconds, periodicSkosifyCheck, ScanForWork)
-  val orgContext = new OrgContext(authenticationService, USER_HOME, ORG_ID)(global, tripleStore)
 
   val check = Future(orgContext.sipFactory.prefixRepos.map(repo => repo.compareWithSchemasDelvingEu()))
   check.onFailure { case e: Exception => Logger.error("Failed to check schemas", e) }
 
-  lazy val authenticationService : AuthenticationService = configString("authenticationProvider") match {
-    case "mock" => new MockAuthenticationService
-    case "ts" => new TsBasedAuthenticationService
-    case "stormpath" => {
+  val authenticationService : AuthenticationService = AuthenticationMode.fromConfigString(config.getString(AuthenticationMode.PROPERTY_NAME)) match {
+    case AuthenticationMode.MOCK => new MockAuthenticationService
+    case AuthenticationMode.TS => new TsBasedAuthenticationService
+    case AuthenticationMode.STORMPATH => {
       import play.api.Play.current
       val stormPathConfig = StormPathConfig(configString("stormpath.appId"), configString("stormpath.key"), configString("stormpath.secret"))
       new StormPathAuthenticationService(WS.client, stormPathConfig)
     }
-    case _ => throw new RuntimeException(s"Unknown authentication mode specified")
   }
+
+  val orgContext = new OrgContext(authenticationService, USER_HOME, ORG_ID)(global, tripleStore)
 
 
 

@@ -9,10 +9,25 @@ With the **sbt** installed, and the below configuration completed, one can run N
 ## Getting started
 
  - Download and install [Fuseki 2.4.x](https://jena.apache.org/download/index.cgi)
- - Startup fuseki from this project's root-dir: `fuseki-server --config=./fuseki.ttl`
- - Start the Play app: `sbt run`
+ - Startup fuseki from this project's root-dir:
 
-You're good to go!
+```bash
+fuseki-server --config=./fuseki.ttl
+```
+
+You will notice that it creates a `./fuseki_data` directory which is in .gitignore.
+
+ - Narthex uses your local filesystem for persistence, and we must initialize it. Perform the following steps from the project root-dir.
+    
+```bash
+mkdir -p ~/NarthexFiles/devorg/factory/edm
+cp docs/files/edm* ~/NarthexFiles/devorg/factory/edm
+```
+    
+ - Start the Play app: `sbt run` and go to the [app-homepage](http://localhost:9000)
+ - Login with `admin`/`admin`, click on 'Datasets' => 'New dataset', enter 'first' and drag [myfirst.sip.zip](myfirst.sip.zip) to see Narthex in action.
+ 
+That's all.
 
 ## Building a distribution
 
@@ -28,15 +43,6 @@ For production deployment, the program must be started up with some extra [confi
 
 
 ## The NarthexFiles directory
-
-Narthex creates a directory in the home of the user where it is started called **NarthexFiles**, and then a directory inside there with the name of the **"org"** from the configuration.  This way multiple instances of Narthex can be run under the same user, if they are given different port numbers, since each creates its own **org* subdirectory.
-
-	~/NarthexFiles/demo_organization
-
-This strategy makes it possible to run multiple instances of Narthex (for different organizations) on the same machine under the same user.
-
-	~/NarthexFiles/demo_organization
-	~/NarthexFiles/another_organization
 
 All of the files and directories which Narthex uses are to be found within the directory corresponding to the organization id.
 
@@ -61,8 +67,6 @@ Narthex persists all of its information on the file system and in the triple sto
 ## The "Nave" LoD server
 
 The public-facing server which is the counterpart to Narthex is referred to as "Nave" (yes, another part of the church).  It gets its data from the triple store, so the triple store is the point of transfer between the two systems.  Nave must periodically query for changes and then act on them.  It must be able to interpret the stored triples, and follow links created by the terminology mapping and vocabulary mapping to build its index and to display the results properly in good LoD tradition.
-
-There is currently a working Nave LoD server, but its release into open source is not yet complete.
 
 ---
 

@@ -68,8 +68,6 @@ class StormPathAuthenticationService(val wsClient: WSClient, val config: StormPa
 
   def loginEndpoint(appId: String) = s"${STORMPATH_BASE_URL}applications/$appId/loginAttempts"
 
-  override def oAuthenticated(actorName: String) = ???
-
   private def base64Of(uid: String, password: String): String = {
     val concatenated = s"$uid:$password".getBytes(StandardCharsets.UTF_8)
     Base64.getEncoder.encodeToString(concatenated)

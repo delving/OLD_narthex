@@ -52,12 +52,7 @@ object TripleStore {
 
   class TripleStoreException(message: String) extends Exception(message)
 
-  def single(storeUrl: String, logQueries: Boolean = false)(implicit ec: ExecutionContext) = {
-    new Fuseki(storeUrl, logQueries)
-  }
 
-  def double(acceptanceStoreUrl: String, productionStoreUrl: String, logQueries: Boolean = false)(implicit ec: ExecutionContext) =
-    new DoubleFuseki(acceptanceStoreUrl, productionStoreUrl, logQueries)
 }
 
 trait TripleStoreUpdate {
@@ -69,10 +64,6 @@ trait TripleStoreUpdate {
   def dataPutXMLFile(graphUri: String, file: File): Future[Unit]
 
   def dataPutGraph(graphUri: String, model: Model): Future[Unit]
-
-  def acceptanceOnly(acceptanceOnly: Boolean): TripleStoreUpdate
-
-  val production: TripleStoreUpdate
 
 }
 
@@ -88,54 +79,7 @@ trait TripleStore {
 
 }
 
-class DoubleFuseki(acceptanceStoreUrl: String, productionStoreUrl: String, logQueries: Boolean)(implicit val executionContext: ExecutionContext) extends TripleStore {
 
-  val accFuseki = new Fuseki(acceptanceStoreUrl, logQueries)
-  val prodFuseki = new Fuseki(productionStoreUrl, false)
-
-  override def ask(sparqlQuery: String) = accFuseki.ask(sparqlQuery)
-
-  override def query(sparqlQuery: String) = accFuseki.query(sparqlQuery)
-
-  override def dataGet(graphName: String) = accFuseki.dataGet(graphName)
-
-  val up = new DoubleUpdate(false)
-
-  class DoubleUpdate(acceptanceOnly: Boolean) extends TripleStoreUpdate {
-
-    private def reportOnFailure(futureUpdate: Future[Unit]) = futureUpdate.onFailure {
-      case e: Throwable =>
-        Logger.error(s"Unable to update production", e)
-    }
-
-    override def sparqlUpdate(sparqlUpdate: String) = {
-      if (!acceptanceOnly) reportOnFailure(prodFuseki.up.sparqlUpdate(sparqlUpdate))
-      accFuseki.up.sparqlUpdate(sparqlUpdate)
-    }
-
-    override def dataPutGraph(graphUri: String, model: Model) = {
-      if (!acceptanceOnly) reportOnFailure(prodFuseki.up.dataPutGraph(graphUri, model))
-      accFuseki.up.dataPutGraph(graphUri, model)
-    }
-
-    override def dataPost(graphUri: String, model: Model) = {
-      if (!acceptanceOnly) reportOnFailure(prodFuseki.up.dataPost(graphUri, model))
-      accFuseki.up.dataPost(graphUri, model)
-    }
-
-    override def dataPutXMLFile(graphUri: String, file: File) = {
-      if (!acceptanceOnly) reportOnFailure(prodFuseki.up.dataPutXMLFile(graphUri, file))
-      accFuseki.up.dataPutXMLFile(graphUri, file)
-    }
-
-    lazy val other = new DoubleUpdate(!acceptanceOnly)
-
-    override def acceptanceOnly(wanted: Boolean) = if (acceptanceOnly == wanted) this else other
-
-    override val production = prodFuseki.up
-  }
-
-}
 
 class Fuseki(storeURL: String, logQueries: Boolean)(implicit val executionContext: ExecutionContext) extends TripleStore {
   var queryIndex = 0
@@ -246,9 +190,6 @@ class Fuseki(storeURL: String, logQueries: Boolean)(implicit val executionContex
       ).put(turtle).map(checkUpdateResponse(_, turtle))
     }
 
-    override def acceptanceOnly(acceptanceOnly: Boolean) = this
-
-    override val production: TripleStoreUpdate = this
   }
 
 }

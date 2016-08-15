@@ -568,12 +568,6 @@ define(["angular"], function () {
             $location.path("/categories/" + $scope.dataset.datasetSpec);
         };
 
-        $scope.toggleDatasetProduction = function () {
-            datasetListService.toggleDatasetProduction($scope.dataset.datasetSpec).then(function (data) {
-                console.log("toggleDatasetProduction", data);
-            });
-        };
-
         function command(command, areYouSure, after) {
             if (areYouSure && !confirm(areYouSure)) return;
             datasetListService.command($scope.dataset.datasetSpec, command).then(function (reply) {

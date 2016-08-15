@@ -17,10 +17,6 @@ POST        /narthex/login                                                   web
 GET         /narthex/checkLogin                                              web.MainController.checkLogin
 GET         /narthex/logout                                                  web.MainController.logout
 
-# OAuth2 Stuff
-GET         /narthex/_oauth-callback                                         web.MainController.oauthCallback(code: Option[String], state: Option[String])
-GET         /narthex/_oauth-success                                          web.MainController.oauthSuccess
-
 # Users
 POST        /narthex/set-profile                                             web.MainController.setProfile
 GET         /narthex/list-actors                                             web.MainController.listActors
@@ -48,7 +44,6 @@ GET         /narthex/app/dataset/:spec/command/:command                      web
 GET         /narthex/app/dataset/:spec/status/*path                          web.AppController.nodeStatus(spec, path)
 GET         /narthex/app/dataset/:spec/sample/:size/*path                    web.AppController.sample(spec, path, size:Int)
 GET         /narthex/app/dataset/:spec/histogram/:size/*path                 web.AppController.histogram(spec, path, size:Int)
-GET         /narthex/app/dataset/:spec/toggle-production                     web.AppController.toggleDatasetProduction(spec)
 
 GET         /narthex/app/dataset/:spec/term/vocab                            web.AppController.getTermVocabulary(spec)
 GET         /narthex/app/dataset/:spec/term/get-mappings                     web.AppController.getTermMappings(spec)
@@ -81,7 +76,6 @@ GET         /narthex/sip-app                                                 web
 GET         /narthex/sip-app/:spec                                           web.SipAppController.downloadSipZip(spec)
 POST        /narthex/sip-app/:spec/:zipFileName                              web.SipAppController.uploadSipZip(spec, zipFileName)
 
-#GET         /narthex/api/:apiKey                                             web.APIController.listDatasets(apiKey)
 GET         /narthex/api/:apiKey/:spec                                       web.APIController.pathsJSON(apiKey, spec)
 GET         /narthex/api/:apiKey/:spec/errors                                web.APIController.processingErrorsText(apiKey, spec)
 GET         /narthex/api/:apiKey/:spec/sourced                               web.APIController.processingSourcedText(apiKey, spec)

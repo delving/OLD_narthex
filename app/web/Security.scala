@@ -45,8 +45,7 @@ trait Security {
         "email" -> email,
         "apiKey" -> us.apiKey,
         "narthexDomain" -> us.narthexDomain,
-        "naveDomain" -> us.naveDomain,
-        "singleTripleStore" -> us.singleTripleStore
+        "naveDomain" -> us.naveDomain
       )
     }
   }
@@ -55,7 +54,6 @@ trait Security {
                           apiKey: String,
                           narthexDomain: String,
                           naveDomain: String,
-                          singleTripleStore: Boolean,
                           token: String = java.util.UUID.randomUUID().toString)
 
   /*

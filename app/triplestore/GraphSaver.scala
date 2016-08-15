@@ -32,7 +32,6 @@ import play.api.libs.ws.{WS, WSResponse}
 import play.api.Play.current
 import services.ProgressReporter
 import services.ProgressReporter.ProgressState._
-import triplestore.GraphProperties.acceptanceOnly
 
 object GraphSaver {
 
@@ -83,7 +82,7 @@ class GraphSaver(datasetContext: DatasetContext) extends Actor with ActorLogging
 
     case Some(chunk: GraphChunk) => actorWork(context) {
       log.info(s"Save a chunk of graphs (bulk-api: ${OrgContext.USE_BULK_API})")
-      val update = if (OrgContext.USE_BULK_API) chunk.dsInfo.bulkApiUpdate(chunk.bulkAPIQ) else ts.up.acceptanceOnly(chunk.dsInfo.getBooleanProp(acceptanceOnly)).sparqlUpdate(chunk.sparqlUpdateQ)
+      val update = if (OrgContext.USE_BULK_API) chunk.dsInfo.bulkApiUpdate(chunk.bulkAPIQ) else ts.up.sparqlUpdate(chunk.sparqlUpdateQ)
       update.map(ok => sendGraphChunkOpt())
       update.onFailure {
         case ex: Throwable => failure(ex)

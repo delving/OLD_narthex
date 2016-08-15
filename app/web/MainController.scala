@@ -46,8 +46,7 @@ object MainController extends Controller with Security {
     actor,
     apiKey = API_ACCESS_KEYS(0),
     narthexDomain = NARTHEX_DOMAIN,
-    naveDomain = NAVE_DOMAIN,
-    singleTripleStore = SINGLE_TRIPLE_STORE
+    naveDomain = NAVE_DOMAIN
   )
 
   def root = Action { request =>
@@ -55,90 +54,7 @@ object MainController extends Controller with Security {
   }
 
   def index = Action { request =>
-    val state = UUID.randomUUID().toString
-    createOAuthUrl(state).map { oauthUrl =>
-      Logger.info(s"Create state $state")
-      Ok(views.html.index(ORG_ID, SIP_APP_URL, oauthUrl)).withSession("oauth-state" -> state)
-    } getOrElse {
-      Ok(views.html.index(ORG_ID, SIP_APP_URL, ""))
-    }
-  }
-
-  def oauthCallback(code: Option[String] = None, state: Option[String] = None) = Action.async { implicit request =>
-    def getToken(code: String): Future[String] = {
-      val form = Map(
-        "grant_type" -> Seq("authorization_code"),
-        "client_id" -> Seq(OAUTH_ID.get),
-        "client_secret" -> Seq(OAUTH_SECRET.get),
-        "code" -> Seq(code),
-        "redirect_uri" -> Seq(OAUTH_CALLBACK)
-      )
-      WS.url(OAUTH_TOKEN_URL)
-        .withHeaders(HeaderNames.ACCEPT -> MimeTypes.JSON)
-        .post(form)
-        .flatMap { response =>
-
-        if (response.status / 100 != 2) {
-          throw new RuntimeException(s"$OAUTH_TOKEN_URL response not 2XX, but ${response.status}: ${response.statusText}")
-        }
-        val tokenOpt = (response.json \ "access_token").asOpt[String]
-        tokenOpt.map(token => Future.successful(token)).getOrElse(Future.failed(new IllegalStateException("No access!")))
-      }
-    }
-    val resultFutureOpt: Option[Future[Result]] = for {
-      code <- code
-      state <- state
-      oauthState <- request.session.get("oauth-state")
-    } yield {
-        if (state == oauthState) {
-          getToken(code).map { token =>
-            Logger.info(s"We got us a dang token $token")
-            Redirect("/narthex/_oauth-success").withSession("oauth-token" -> token)
-          }.recover {
-            case ex: Exception =>
-              Logger.warn(s"No token!", ex)
-              Unauthorized(ex.getMessage)
-          }
-        }
-        else {
-          Future.successful(BadRequest("Invalid oauth login"))
-        }
-      }
-    resultFutureOpt.getOrElse {
-      Logger.warn( s"""### no result code=$code state=$state session.oauth-state=${request.session.get("oauth-state")}""")
-      Future.successful(BadRequest(s"Unable to get OAuth token"))
-    }
-  }
-
-  def oauthSuccess() = Action.async { request =>
-    request.session.get("oauth-token").map { token =>
-      WS.url(OAUTH_USER_URL).withHeaders(
-        HeaderNames.ACCEPT -> MimeTypes.JSON,
-        HeaderNames.AUTHORIZATION -> s"Bearer $token"
-      ).get().flatMap { response =>
-        val username = (response.json \ "username").as[String]
-        val isStaff = (response.json \ "is_staff").as[Boolean]
-        if (isStaff) {
-          orgContext.us.oAuthenticated(username).map { actor =>
-            val session = actorSession(actor)
-            Redirect("/narthex/").withSession(session)
-          }
-        }
-        else {
-          Future.successful(Unauthorized("User is not a member of staff"))
-        }
-
-        /* this worked for github oauth
-        val login = (response.json \ "login").as[String]
-        Logger.info(s"OAuth success $login")
-        orgContext.us.oAuthenticated(login).map { actor =>
-          val session = actorSession(actor)
-          Redirect("/narthex/").withSession(session)
-        } */
-      }
-    } getOrElse {
-      Future.successful(Unauthorized("No oauth token"))
-    }
+    Ok(views.html.index(ORG_ID, SIP_APP_URL, buildinfo.BuildInfo.version))
   }
 
   def login = Action.async(parse.json) { implicit request =>
@@ -280,61 +196,57 @@ object MainController extends Controller with Security {
   }
 
   /**
-   * Returns the JavaScript router that the client can use for "type-safe" routes.
- *
-   * @param varName The name of the global variable, defaults to `jsRoutes`
-   */
-  def jsRoutes(varName: String = "jsRoutes") = Action {
-    implicit request =>
-      Ok(
-        JavaScriptReverseRouter(varName)(
-          routes.javascript.MainController.login,
-          routes.javascript.MainController.checkLogin,
-          routes.javascript.MainController.logout,
-          routes.javascript.MainController.setProfile,
-          routes.javascript.MainController.setPassword,
-          routes.javascript.MainController.listActors,
-          routes.javascript.MainController.createActor,
-          routes.javascript.MainController.disableActor,
-          routes.javascript.MainController.enableActor,
-          routes.javascript.MainController.deleteActor,
-          routes.javascript.MainController.makeAdmin,
-          routes.javascript.MainController.removeAdmin,
-          routes.javascript.AppController.datasetSocket,
-          routes.javascript.AppController.listDatasets,
-          routes.javascript.AppController.listPrefixes,
-          routes.javascript.AppController.createDataset,
-          routes.javascript.AppController.setDatasetProperties,
-          routes.javascript.AppController.toggleSkosifiedField,
-          routes.javascript.AppController.datasetInfo,
-          routes.javascript.AppController.command,
-          routes.javascript.AppController.toggleDatasetProduction,
-          routes.javascript.AppController.nodeStatus,
-          routes.javascript.AppController.index,
-          routes.javascript.AppController.sample,
-          routes.javascript.AppController.histogram,
-          routes.javascript.AppController.setRecordDelimiter,
-          routes.javascript.AppController.getTermVocabulary,
-          routes.javascript.AppController.getTermMappings,
-          routes.javascript.AppController.getCategoryMappings,
-          routes.javascript.AppController.toggleTermMapping,
-          routes.javascript.AppController.getCategoryList,
-          routes.javascript.AppController.listSheets,
-          routes.javascript.AppController.gatherCategoryCounts,
-          routes.javascript.AppController.listSipFiles,
-          routes.javascript.AppController.deleteLatestSipFile,
-          routes.javascript.AppController.listVocabularies,
-          routes.javascript.AppController.createVocabulary,
-          routes.javascript.AppController.deleteVocabulary,
-          routes.javascript.AppController.setVocabularyProperties,
-          routes.javascript.AppController.vocabularyInfo,
-          routes.javascript.AppController.vocabularyStatistics,
-          routes.javascript.AppController.getSkosMappings,
-          routes.javascript.AppController.toggleSkosMapping,
-          routes.javascript.AppController.searchVocabulary,
-          routes.javascript.AppController.getVocabularyLanguages
-        )
-      ).as(JAVASCRIPT)
+    * Returns the JavaScript router that the client can use for "type-safe" routes.
+    */
+  def jsRoutes(varName: String = "jsRoutes") = Action { implicit request =>
+    Ok(
+      JavaScriptReverseRouter(varName)(
+        routes.javascript.MainController.login,
+        routes.javascript.MainController.checkLogin,
+        routes.javascript.MainController.logout,
+        routes.javascript.MainController.setProfile,
+        routes.javascript.MainController.setPassword,
+        routes.javascript.MainController.listActors,
+        routes.javascript.MainController.createActor,
+        routes.javascript.MainController.disableActor,
+        routes.javascript.MainController.enableActor,
+        routes.javascript.MainController.deleteActor,
+        routes.javascript.MainController.makeAdmin,
+        routes.javascript.MainController.removeAdmin,
+        routes.javascript.AppController.datasetSocket,
+        routes.javascript.AppController.listDatasets,
+        routes.javascript.AppController.listPrefixes,
+        routes.javascript.AppController.createDataset,
+        routes.javascript.AppController.setDatasetProperties,
+        routes.javascript.AppController.toggleSkosifiedField,
+        routes.javascript.AppController.datasetInfo,
+        routes.javascript.AppController.command,
+        routes.javascript.AppController.nodeStatus,
+        routes.javascript.AppController.index,
+        routes.javascript.AppController.sample,
+        routes.javascript.AppController.histogram,
+        routes.javascript.AppController.setRecordDelimiter,
+        routes.javascript.AppController.getTermVocabulary,
+        routes.javascript.AppController.getTermMappings,
+        routes.javascript.AppController.getCategoryMappings,
+        routes.javascript.AppController.toggleTermMapping,
+        routes.javascript.AppController.getCategoryList,
+        routes.javascript.AppController.listSheets,
+        routes.javascript.AppController.gatherCategoryCounts,
+        routes.javascript.AppController.listSipFiles,
+        routes.javascript.AppController.deleteLatestSipFile,
+        routes.javascript.AppController.listVocabularies,
+        routes.javascript.AppController.createVocabulary,
+        routes.javascript.AppController.deleteVocabulary,
+        routes.javascript.AppController.setVocabularyProperties,
+        routes.javascript.AppController.vocabularyInfo,
+        routes.javascript.AppController.vocabularyStatistics,
+        routes.javascript.AppController.getSkosMappings,
+        routes.javascript.AppController.toggleSkosMapping,
+        routes.javascript.AppController.searchVocabulary,
+        routes.javascript.AppController.getVocabularyLanguages
+      )
+    ).as(JAVASCRIPT)
   }
 
   def testEmail(messageType: String) = Action { request =>

@@ -24,12 +24,7 @@ define(["angular"], function (angular) {
     var DashboardCtrl = function ($scope, $rootScope, $cookies, $window, userService, $timeout) {
 
         $scope.credentials = { };
-        if ($cookies[OAUTH_COOKIE]) {
-            $scope.credentials.oauth = true;
-        }
-        else {
-            $scope.credentials.username = $cookies[USERNAME_COOKIE];
-        }
+        $scope.credentials.username = $cookies[USERNAME_COOKIE];
         $scope.newActor = {};
         $scope.change = {};
         $scope.changeDisabled = true;
@@ -49,33 +44,21 @@ define(["angular"], function (angular) {
             }
         }
 
-        $scope.toggleOAuth = function() {
-            $cookies[OAUTH_COOKIE] = $scope.credentials.oauth = !$scope.credentials.oauth;
-            if (!$scope.credentials.oauth) {
-                $scope.credentials.username = $cookies[USERNAME_COOKIE];
-            }
-        };
-
         $scope.login = function () {
             $scope.errorMessage = undefined;
-            if ($scope.credentials.oauth) {
-                $window.location.href = $scope.oauthUrl;
-            }
-            else {
-                userService.loginUser($scope.credentials).then(
-                    function (response) {
-                        if (response.profile) {
-                            checkLogin();
-                            $cookies[USERNAME_COOKIE] = $scope.credentials.username;
-                            listActors();
-                        }
-                        else {
-                            $scope.credentials.password = "";
-                            $scope.errorMessage = response.problem;
-                        }
+            userService.loginUser($scope.credentials).then(
+                function (response) {
+                    if (response.profile) {
+                        checkLogin();
+                        $cookies[USERNAME_COOKIE] = $scope.credentials.username;
+                        listActors();
                     }
-                );
-            }
+                    else {
+                        $scope.credentials.password = "";
+                        $scope.errorMessage = response.problem;
+                    }
+                }
+            );
         };
 
         checkLogin();
@@ -156,11 +139,10 @@ define(["angular"], function (angular) {
     /** Controls the sidebar and headers */
     var IndexCtrl = function ($rootScope, $scope, userService, $location) {
 
-        $scope.initialize = function (orgId, sipCreatorLink, oauthUrl) {
+        $scope.initialize = function (orgId, sipCreatorLink) {
             //console.log("Initializing index");
             $rootScope.orgId = orgId;
             $rootScope.sipCreatorLink = sipCreatorLink;
-            $rootScope.oauthUrl = oauthUrl;
             $scope.toggleBar = true;
         };
 

@@ -22,16 +22,9 @@
                 <div class="img pull-left" style="margin-right:20px;">
                     <img src="/narthex/assets/images/narthex-blue.png"/>
                 </div>
-                <fieldset data-ng-show="credentials.oauth">
-                    <div class="form-group">
-                        <a href class="pull-right" data-ng-click="toggleOAuth()">Switch to internal login</a>
-                        <button class="btn btn-primary" data-ng-click="login()">Log in</button>
-                    </div>
-                </fieldset>
-                <fieldset data-ng-show="!credentials.oauth">
+                <fieldset>
                     <div class="form-group">
                         <label for="login_username">Username</label>
-                        <!--<a href class="pull-right" data-ng-click="toggleOAuth()">Switch to external login</a>-->
                         <input id="login_username" class="form-control" data-ng-model="credentials.username" placeholder="Username" required/>
                     </div>
                     <div class="form-group">
@@ -90,7 +83,7 @@
                             <label for="email">Email</label>
                             <input id="email" class="form-control" data-ng-model="editedUser.email" placeholder="john@smith.net"/>
                         </div>
-                        <a href data-ng-click="showChangePassword = !showChangePassword" data-ng-show="!credentials.oauth">Change password</a>
+                        <a href data-ng-click="showChangePassword = !showChangePassword">Change password</a>
                         <button class="btn btn-primary pull-right" data-ng-disabled="unchangedUser" data-ng-click="setProfile(editedUser)">Save</button>
                         <div data-ng-show="errorMessage">
                             <span class="badge badge-warning">{{ errorMessage }}</span>

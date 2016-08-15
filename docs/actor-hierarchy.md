@@ -8,20 +8,6 @@ Narthex provides for manipulating and mapping data on the way through to the tri
 
 The very first user to login to Narthex, when the triple store is completely empty, becomes the top administrator.  The only thing that the super-user should do is create sub-actors and then log out.  It may make sense to think about how the management of Narthex is to be done before the hierarchy is built, at least for the top levels, and build the top levels carefully.
 
-## OAuth Top Actors
-
-If the OAuth configuration is added, you can use an external OAuth provider for single-sign-on function.  The configuration block for OAuth2 looks like this:
-
-	oauth2 {
-	  id = "9...r1s6"
-	  secret = "g4RcD....Fp4eXNd"
-	  server = "http://localhost:8000/o"
-	  userUrl = "http://localhost:8000/en/api/token-user/"
-	  callbackBaseUrl = "http://localhost:9000"
-	}
-	
-Currently it is set up to make use of the Django OAuth2 mechanism of the counterpart to Narthex called Nave.  We have also had it working with github OAuth.  Each OAuth source requires minor customization still.
-
 ## Sub-Actors
 
 Actors at the second level may be something like administration departments, and underneath may be individual administrators.  Since any actor can create sub-actors we might imagine going deeper to create an actor representing things like a classroom with students as sub-actors.  This way all activities can be recorded with provenance that can be managed and interpreted in any number of ways.

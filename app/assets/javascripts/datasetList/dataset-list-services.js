@@ -59,14 +59,6 @@ define(["angular", "common"], function (angular) {
                         rejection
                     );
                 },
-                toggleDatasetProduction: function (spec) {
-                    return app.toggleDatasetProduction(spec).get().then(
-                        function (response) {
-                            return response.data;
-                        },
-                        rejection
-                    );
-                },
                 listDatasets: function () {
                     return app.listDatasets().get().then(
                         function (response) {

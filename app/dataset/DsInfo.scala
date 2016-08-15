@@ -117,8 +117,6 @@ object DsInfo {
     m.add(subject, m.getProperty(publishOAIPMH.uri), trueLiteral)
     m.add(subject, m.getProperty(publishIndex.uri), trueLiteral)
     m.add(subject, m.getProperty(publishLOD.uri), trueLiteral)
-    m.add(subject, m.getProperty(acceptanceOnly.uri), trueLiteral)
-    m.add(subject, m.getProperty(acceptanceMode.uri), falseLiteral)
     if (mapToPrefix != "-") m.add(subject, m.getProperty(datasetMapToPrefix.uri), m.createLiteral(mapToPrefix))
     ts.up.dataPost(getGraphName(spec), m).map { ok =>
       val cacheName = getDsInfoUri(spec)
@@ -189,12 +187,12 @@ class DsInfo(val spec: String)(implicit ec: ExecutionContext, ts: TripleStore) e
     val sparqlPerPropQ = propVals.map(pv => updatePropertyQ(graphName, uri, pv._1, pv._2)).toList
     val withSynced = updateSyncedFalseQ(graphName, uri) :: sparqlPerPropQ
     val sparql = withSynced.mkString(";\n")
-    val futureUpdate = ts.up.acceptanceOnly(getBooleanProp(acceptanceOnly)).sparqlUpdate(sparql)
+    val futureUpdate = ts.up.sparqlUpdate(sparql)
     Await.ready(futureUpdate, patience)
   }
 
   def removeLiteralProp(prop: NXProp): Unit = {
-    val futureUpdate = ts.up.acceptanceOnly(getBooleanProp(acceptanceOnly)).sparqlUpdate(removeLiteralPropertyQ(graphName, uri, prop))
+    val futureUpdate = ts.up.sparqlUpdate(removeLiteralPropertyQ(graphName, uri, prop))
     Await.ready(futureUpdate, patience)
   }
 
@@ -204,12 +202,12 @@ class DsInfo(val spec: String)(implicit ec: ExecutionContext, ts: TripleStore) e
   }
 
   def addLiteralPropToList(prop: NXProp, uriValueString: String): Unit = {
-    val futureUpdate = ts.up.acceptanceOnly(getBooleanProp(acceptanceOnly)).sparqlUpdate(addLiteralPropertyToListQ(graphName, uri, prop, uriValueString))
+    val futureUpdate = ts.up.sparqlUpdate(addLiteralPropertyToListQ(graphName, uri, prop, uriValueString))
     Await.ready(futureUpdate, patience)
   }
 
   def removeLiteralPropFromList(prop: NXProp, uriValueString: String): Unit = {
-    val futureUpdate = ts.up.acceptanceOnly(getBooleanProp(acceptanceOnly)).sparqlUpdate(deleteLiteralPropertyFromListQ(graphName, uri, prop, uriValueString))
+    val futureUpdate = ts.up.sparqlUpdate(deleteLiteralPropertyFromListQ(graphName, uri, prop, uriValueString))
     Await.ready(futureUpdate, patience)
   }
 
@@ -238,17 +236,6 @@ class DsInfo(val spec: String)(implicit ec: ExecutionContext, ts: TripleStore) e
       IdFilter(filterType, expressionOpt)
     } getOrElse {
       VERBATIM_FILTER
-    }
-  }
-
-  def toggleProduction(): Future[Boolean] = {
-    if (getBooleanProp(acceptanceMode)) {
-      setSingularLiteralProps(acceptanceMode -> "false")
-      Future(false)
-    }
-    else {
-      setSingularLiteralProps(acceptanceMode -> "true")
-      Future(true)
     }
   }
 

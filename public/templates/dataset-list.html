@@ -107,15 +107,6 @@
                             <span>{{ dataset.processedValid }}/{{ dataset.datasetRecordCount }}</span>
                         </a>
                     </td>
-                    <td class="acc-prod">
-                        <span data-ng-show="user.singleTripleStore" ng-if="dataset.acceptanceMode">
-                            <a href class="btn btn-default" data-ng-click="toggleDatasetProduction()">
-                                <i class="fa fa-fw" data-ng-class="{ 'fa-star-half-empty': dataset.acceptanceMode == 'true', 'fa-star': dataset.acceptanceMode == 'false' }"></i>
-                                <span data-ng-show="dataset.acceptanceMode == 'true'">Acceptance</span>
-                                <span data-ng-show="dataset.acceptanceMode == 'false'">Production</span>
-                            </a>
-                        </span>
-                    </td>
                     <td class="state">
                         <div class="indicator pull-right" ng-class="{stateEmpty:'empty',
                                         stateRaw: 'raw',

@@ -16,7 +16,6 @@
 
 package org
 
-import java.io.Serializable
 import java.security.MessageDigest
 
 import org.OrgContext._
@@ -46,6 +45,24 @@ class ActorStore(val authenticationService: AuthenticationService)(implicit ec: 
 
   import org.ActorStore._
 
+  val topActorUsername = "admin"
+
+  def insertAdmin(passwd: String): NXActor = {
+    val topActor = NXActor(topActorUsername, None)
+    ts.up.sparqlUpdate(insertTopActorQ(topActor, Utils.hashPasswordUnsecure(passwd, topActorUsername))).map(ok => Some(topActor))
+    Logger.info(s"Created initial admin user")
+    topActor
+  }
+
+  def hasAdmin: Boolean = {
+    val result: Future[Option[NXActor]] =
+      ts.query(getActor(topActorUsername))
+        .map(m => actorFromResult(m))
+    val actorOpt: Option[NXActor] = Await.result(result, 5.seconds)
+    actorOpt.isDefined
+  }
+
+
   def emailFromUri(actorUri: String): Option[String] = {
     val query = ts.query(getEMailOfActor(actorUri)).map(emailFromResult)
     // todo: maybe make this async
@@ -59,28 +76,25 @@ class ActorStore(val authenticationService: AuthenticationService)(implicit ec: 
     Await.result(query, 5.seconds)
   }
 
-  def oAuthenticated(actorName: String): Future[NXActor] = {
-    authenticationService.oAuthenticated(actorName)
-  }
-
   def authenticate(actorName: String, password: String): Future[Option[NXActor]] = {
     authenticationService.authenticate(actorName, password)
   }
 
   def listSubActors(nxActor: NXActor): List[Map[String, String]] = {
     val query = ts.query(getSubActorList(nxActor)).map { list =>
-        list.map(m =>
-          Map(
-            "userName" -> m.get("username").get.text,
-            "isAdmin" -> {
-              val isAdmin = m.get("isAdmin")
-              if (isAdmin.nonEmpty) isAdmin.get.text else "false"},
-            "userEnabled" -> {
-              val actorEnabled = m.get("actorEnabled")
-              if (actorEnabled.nonEmpty) actorEnabled.get.text else "true"
-            }
-          )
+      list.map(m =>
+        Map(
+          "userName" -> m.get("username").get.text,
+          "isAdmin" -> {
+            val isAdmin = m.get("isAdmin")
+            if (isAdmin.nonEmpty) isAdmin.get.text else "false"
+          },
+          "userEnabled" -> {
+            val actorEnabled = m.get("actorEnabled")
+            if (actorEnabled.nonEmpty) actorEnabled.get.text else "true"
+          }
         )
+      )
     }
     // todo: maybe make this async
     Await.result(query, 5.seconds)

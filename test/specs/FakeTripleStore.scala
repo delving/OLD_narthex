@@ -4,7 +4,7 @@ import java.util.concurrent.Executors
 
 import play.api.test.Helpers._
 import triplestore.GraphProperties.deleted
-import triplestore.TripleStore
+import triplestore.{Fuseki, TripleStore}
 
 import scala.concurrent.ExecutionContext
 
@@ -15,7 +15,7 @@ trait FakeTripleStore {
   implicit val ec = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
 
   // logQueries = true if you want to see them
-  implicit val ts = TripleStore.single("http://localhost:3030/test", logQueries = false)
+  implicit val ts = new Fuseki("http://localhost:3030/test", false)
 
   def cleanStart() = {
     await(ts.up.sparqlUpdate("DROP ALL"))

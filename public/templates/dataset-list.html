@@ -272,18 +272,12 @@
                                 <li ng-class="{'active':leftTabOpen === 'publication'}">
                                     <a href role="tab" data-ng-click="leftTabOpen = 'publication'">Publication</a>
                                 </li>
-                                <!--<li ng-class="{'active':leftTabOpen === 'categories'}">-->
-                                <!--<a href role="tab" data-ng-click="leftTabOpen ='categories'">Categories</a>-->
-                                <!--</li>-->
                                 <li data-ng-class="{'active':leftTabOpen === 'harvesting'}">
                                     <a href role="tab" data-ng-click="leftTabOpen = 'harvesting'">Harvesting</a>
                                 </li>
                                 <li data-ng-class="{'active':leftTabOpen === 'check-links'}">
                                     <a href role="tab" data-ng-click="leftTabOpen ='check-links'">Links</a>
                                 </li>
-                                <!--<li data-ng-class="{'active':leftTabOpen === 'mapping'}">-->
-                                <!--<a href role="tab" data-ng-click="leftTabOpen ='mapping'">Mapping</a>-->
-                                <!--</li>-->
                             </ul>
 
                             <div class="tab-content clearfix">
@@ -294,9 +288,6 @@
                                     <div ng-switch-when="publication">
                                         <div data-ng-include="'publication-form.html'">publication form</div>
                                     </div>
-                                    <!--<div ng-switch-when="categories">-->
-                                    <!--<div data-ng-include="'categories-form.html'">categories form</div>-->
-                                    <!--</div>-->
                                     <div ng-switch-when="check-links">
                                         <div data-ng-include="'check-links.html'">check links</div>
                                     </div>
@@ -412,6 +403,9 @@
                         <option value="http://www.europeana.eu/rights/unknown/">Unknown</option>
                     </select>
                 </div>
+            </div>
+            <div class="alert alert-info">
+                What you enter here does not take effect until you run 'make sip'.
             </div>
             <button type="submit" class="btn btn-success btn-sm" data-ng-disabled="unchangedMetadata">
                 <i class="fa fa-check-circle"></i>

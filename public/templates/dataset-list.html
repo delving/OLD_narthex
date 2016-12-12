@@ -197,14 +197,6 @@
                                     <i class="fa fa-fw fa-language"></i> <span>Explore</span>
                                 </a>
                                 <br/>
-                                <!-- TODO: enable when process and save are folded together -->
-                                <!--<a href="{{ sparqlPath }}">-->
-                                <!--<i class="fa fa-fw fa-eye"></i>-->
-                                <!--<span>View saved RDF</span>-->
-                                <!--</a><br/>-->
-                                <!--<a href data-ng-click="goToTerms()" data-ng-if="dataset.skosField">-->
-                                <!--<i class="fa fa-fw fa-magic"></i> <span>Map vocabulary terms</span>-->
-                                <!--</a>-->
                                 <a href data-ng-click="start('start saving')">
                                     <i class="fa fa-fw fa-database"></i> <span>Save</span>
                                 </a>
@@ -690,15 +682,6 @@
     </ul>
 </script>
 
-<!--<script type="text/ng-template" id="mapping.html">-->
-<!--<div class="panel panel-default">-->
-<!--<div class="panel-body">-->
-<!--<label>WebResource Path:</label>-->
-<!--<code class="success">{{ apiWebResourcePath }}</code>-->
-<!--</div>-->
-<!--</div>-->
-<!--</script>-->
-
 <script type="text/ng-template" id="harvesting-info.html">
     <!-- TODO: hide if no data available -->
 
@@ -815,49 +798,6 @@
         </div>
     </div>
 </script>
-
-<!--<script type="text/ng-template" id="sip-zip.html">-->
-<!--<ul class="sip-files">-->
-<!--<li data-ng-repeat="sip in sipFiles">-->
-<!--<span data-ng-class="{ 'latest': $index == 0}">{{ sip }}</span>-->
-<!--</li>-->
-<!--</ul>-->
-<!--</script>-->
-
-<!--<script type="text/ng-template" id="info.html">-->
-<!--<div class="file-info-harvest" data-ng-show="nonEmpty(dataset.harvest)">-->
-<!--<h4 class="heading">Harvest</h4>-->
-<!--<ul class="list-unstyled">-->
-<!--<li data-ng-repeat="(key, value) in dataset.harvest">-->
-<!--<b>{{ key }}</b> = "{{ value }}"-->
-<!--</li>-->
-<!--</ul>-->
-<!--</div>-->
-<!--<div class="file-info-namespace" data-ng-show="nonEmpty(dataset.namespaces)">-->
-<!--<h4 class="heading">Namespace(s)</h4>-->
-<!--<ul class="list-unstyled">-->
-<!--<li data-ng-repeat="(prefix, uri) in dataset.namespaces">-->
-<!--<b>{{ prefix }}</b> = "{{ uri }}"-->
-<!--</li>-->
-<!--</ul>-->
-<!--</div>-->
-<!--<div class="file-info-sip-facts" data-ng-show="nonEmpty(dataset.sipFacts)">-->
-<!--<h4 class="heading">SIP Facts</h4>-->
-<!--<ul class="list-unstyled">-->
-<!--<li data-ng-repeat="(key, value) in dataset.sipFacts">-->
-<!--<b>{{ key }}</b> = "{{ value }}"-->
-<!--</li>-->
-<!--</ul>-->
-<!--</div>-->
-<!--<div class="file-info-sip-hints" data-ng-show="nonEmpty(dataset.sipHints)">-->
-<!--<h4 class="heading">SIP Hints</h4>-->
-<!--<ul class="list-unstyled">-->
-<!--<li data-ng-repeat="(key, value) in dataset.sipHints">-->
-<!--<b>{{ key }}</b> = "{{ value }}"-->
-<!--</li>-->
-<!--</ul>-->
-<!--</div>-->
-<!--</script>-->
 
 <div class="fade" ng-file-drop-available="setDropSupported()" ng-show="!dropSupported">
     <h4>HTML5 Drop File is not supported! You need an HTML5 compliant browser.</h4>

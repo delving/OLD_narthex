@@ -61,7 +61,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "log4j-over-slf4j" % "1.7.21",
   "org.easybatch" % "easybatch-apache-commons-csv" % "3.0.0",
   "com.typesafe.play" %% "play-mailer" % "5.0.0",
-  "eu.delving" % "sip-core" % "1.1.5",
+  "eu.delving" % "sip-core" % "1.2.0",
   "de.threedimensions" %% "metrics-play" % "2.5.13",
   "com.getsentry.raven" % "raven-logback" % "7.6.0" % "runtime",
   "nl.grons" %% "metrics-scala" % "3.5.5_a2.3",

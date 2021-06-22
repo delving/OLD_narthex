@@ -80,8 +80,10 @@ object DsInfo {
                         description: String,
                         aggregator: String,
                         owner: String,
+                        dataProviderURL: String,
                         language: String,
-                        rights: String)
+                        rights: String,
+                        dataType: String)
 
   implicit val dsInfoWrites = new Writes[DsInfo] {
     def writes(dsInfo: DsInfo): JsValue = {
@@ -499,8 +501,10 @@ class DsInfo(
     datasetDescription -> metadata.description,
     datasetAggregator -> metadata.aggregator,
     datasetOwner -> metadata.owner,
+    datasetDataProviderURL -> metadata.dataProviderURL,
     datasetLanguage -> metadata.language,
-    datasetRights -> metadata.rights
+    datasetRights -> metadata.rights,
+    datasetType -> metadata.dataType
   )
 
   def toggleNaveSkosField(datasetUri: String,
@@ -655,9 +659,14 @@ class DsInfo(
 
 
   def updateDatasetRevision() = {
+    val dataType = getLiteralProp(datasetType)
+    val dataProviderURL = getLiteralProp(datasetDataProviderURL)
+
     val actionMap = Json.obj(
       "dataset" -> spec,
       "orgId" -> orgContext.appConfig.orgId,
+      "type" -> dataType,
+      "dataProviderURL" -> dataProviderURL,
       "action" -> "increment_revision"
     )
     bulkApiUpdate(s"${actionMap.toString()}\n")

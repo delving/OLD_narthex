@@ -175,9 +175,11 @@ class Sip(val dsInfoSpec: String, rdfBaseUrl: String, val file: File) {
   lazy val orgId = fact("orgId")
   lazy val provider = fact("provider")
   lazy val dataProvider = fact("dataProvider")
+  lazy val dataProviderURL = fact("dataProviderURL")
   lazy val country = fact("country")
   lazy val language = fact("language")
   lazy val rights = fact("rights")
+  lazy val dataType = fact("type")
   lazy val schemaVersions = fact("schemaVersions")
 
   lazy val hints = readMap(HINTS_FILE)

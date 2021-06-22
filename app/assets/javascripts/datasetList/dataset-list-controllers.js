@@ -329,7 +329,7 @@ define(["angular"], function () {
     // these lists must match with DsInfo.scala
 
     var metadataFields = [
-        "datasetName", "datasetDescription", "datasetAggregator", "datasetOwner", "datasetLanguage", "datasetRights"
+        "datasetName", "datasetDescription", "datasetAggregator", "datasetOwner", "datasetLanguage", "datasetRights", "datasetType", "datasetDataProviderURL"
     ];
 
     var harvestFields = [
@@ -688,11 +688,12 @@ define(["angular"], function () {
     /** Controls the sidebar and headers */
     var IndexCtrl = function ($rootScope, $scope, $location) {
 
-        $scope.initialize = function (orgId, sipCreatorLink, enableIncrementalHarvest) {
+        $scope.initialize = function (orgId, sipCreatorLink, enableIncrementalHarvest, supportedDatasetTypes) {
             //console.log("Initializing index");
             $rootScope.orgId = orgId;
             $rootScope.sipCreatorLink = sipCreatorLink;
             $rootScope.enableIncrementalHarvest = enableIncrementalHarvest;
+            $rootScope.supportedDatasetTypes = supportedDatasetTypes ? supportedDatasetTypes.split(",") : [];
             $scope.toggleBar = true;
         };
 

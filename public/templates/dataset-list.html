@@ -433,6 +433,12 @@
                     <input id="meta_owner" name="meta_owner" required class="form-control" data-ng-model="dataset.edit.datasetOwner"/>
                 </div>
             </div>
+            <div class="form-group" ng-class="{'has-error' : metadataform.meta_dataProviderURL.$invalid, 'has-success' : metadataform.meta_dataProviderURL.$valid }">
+                <label class="col-sm-3 control-label" for="meta_dataProviderURL">Data Provider URL</label>
+                <div class="col-sm-9">
+                    <input id="meta_dataProviderURL" name="meta_dataProviderURL" class="form-control" data-ng-model="dataset.edit.datasetDataProviderURL"/>
+                </div>
+            </div>
             <div class="form-group" ng-class="{'has-error' : metadataform.meta_language.$invalid, 'has-success' : metadataform.meta_language.$valid && !metadataform.meta_language.$pristine }">
                 <label class="col-sm-3 control-label" for="meta_language">Language</label>
                 <div class="col-sm-9">
@@ -459,6 +465,18 @@
                         <option value="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons - Attribution, Non-Commercial (BY-NC)</option>
                         <option value="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons - Attribution, Non-Commercial, ShareAlike (BY-NC-SA)</option>
                         <option value="http://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons - Attribution, Non-Commercial, No Derivatives (BY-NC-ND)</option>
+                    </select>
+                </div>
+            </div>
+            <div ng-if="supportedDatasetTypes.length !== 0" class="form-group" ng-class="{'has-error' : metadataform.meta_type.$invalid, 'has-success' : metadataform.meta_type.$valid && !metadataform.meta_type.$pristine }">
+                <label class="col-sm-3 control-label" for="meta_type">Type</label>
+                <div class="col-sm-9">
+                    <select name="singleSelect" id="meta_type" data-ng-model="dataset.edit.datasetType" class="form-control">
+                        <option ng-repeat="supportedDatasetType in supportedDatasetTypes"
+                                ng-selected="{{supportedDatasetType === dataset.edit.datasetType}}"
+                                value="{{supportedDatasetType}}">
+                            {{supportedDatasetType}}
+                        </option>
                     </select>
                 </div>
             </div>

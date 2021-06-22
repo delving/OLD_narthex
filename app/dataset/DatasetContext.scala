@@ -130,8 +130,10 @@ class DatasetContext(val orgContext: OrgContext, val dsInfo: DsInfo) {
           description = "",
           aggregator = sip.provider.getOrElse(""),
           owner = sip.dataProvider.getOrElse(""),
+          dataProviderURL = sip.dataProviderURL.getOrElse(""),
           language = sip.language.getOrElse(""),
-          rights = sip.rights.getOrElse("")
+          rights = sip.rights.getOrElse(""),
+          dataType = sip.dataType.getOrElse("")
         ))
         dsInfo.setHarvestInfo(
           harvestTypeEnum = sip.harvestType.flatMap(HarvestType.harvestTypeFromString).getOrElse(HarvestType.PMH),

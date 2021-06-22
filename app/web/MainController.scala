@@ -29,7 +29,8 @@ import scala.concurrent.duration._
 class MainController(val cacheApi: CacheApi,
                      val narthexDomain: String, val naveDomain: String, val orgId: String,
                      val webJarAssets: WebJarAssets, val requireJS: RequireJS,
-                     val sipAppDownloadUrl: String, val enableIncrementalHarvest: Boolean)
+                     val sipAppDownloadUrl: String, val enableIncrementalHarvest: Boolean,
+                     val supportedDatasetTypes: List[String])
   extends Controller {
 
   val cacheDuration = 1.day
@@ -50,6 +51,7 @@ class MainController(val cacheApi: CacheApi,
 
   def index = Action { request =>
     Ok(views.html.index(orgId, sipAppDownloadUrl, buildinfo.BuildInfo.version,
+      supportedDatasetTypes.mkString(","),
       buildinfo.BuildInfo.gitCommitSha, webJarAssets, requireJS, naveDomain, enableIncrementalHarvest)).withHeaders(
       CACHE_CONTROL -> "no-cache")
   }

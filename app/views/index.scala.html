@@ -1,4 +1,4 @@
-@(orgId: String, sipCreatorLink: String, version: String, commitSha: String,
+@(orgId: String, sipCreatorLink: String, version: String, supportedDatasetTypes: String, commitSha: String,
   webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, naveDomain: String, enableIncrementalHarvest: Boolean)
 <!DOCTYPE html>
 <html>
@@ -12,7 +12,7 @@
         <script data-main="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript" src="@routes.Assets.versioned("lib/requirejs/require.js")"></script>
     </head>
     <body>
-        <div id="page-wrapper" class="open" ng-class="{'open': toggleBar}" ng-cloak data-ng-controller="IndexCtrl" data-ng-init="initialize('@orgId', '@sipCreatorLink', '@enableIncrementalHarvest')">
+        <div id="page-wrapper" class="open" ng-class="{'open': toggleBar}" ng-cloak data-ng-controller="IndexCtrl" data-ng-init="initialize('@orgId', '@sipCreatorLink', '@enableIncrementalHarvest', '@supportedDatasetTypes')">
             <!-- Sidebar -->
 
             <div id="sidebar-wrapper">

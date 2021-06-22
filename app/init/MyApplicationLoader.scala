@@ -88,6 +88,7 @@ class MyComponents(context: Context, narthexDataDir: File, datadogConfig: Option
 
   LoggerConfigurator(context.environment.classLoader).foreach { _.configure(context.environment) }
 
+  val allSupportedDatasetTypes = Set("narthex","rdf","nt","photo","ead")
   val appConfig = initAppConfig(narthexDataDir)
 
   val tripleStoreUrl = configStringNoSlash("triple-store")
@@ -121,7 +122,8 @@ class MyComponents(context: Context, narthexDataDir: File, datadogConfig: Option
   lazy val sipAppController: SipAppController = new SipAppController(orgContext)
   lazy val mainController = new MainController(defaultCacheApi,
     appConfig.narthexDomain, appConfig.naveDomain, appConfig.orgId,
-    webJarAssets, requireJs, configString("sipAppDownloadUrl"), configFlag("enableIncrementalHarvest"))
+    webJarAssets, requireJs, configString("sipAppDownloadUrl"), configFlag("enableIncrementalHarvest"),
+    appConfig.supportedDatasetTypes)
 
   lazy val appController = new AppController(orgContext) (tripleStore, actorSystem, materializer)
   lazy val apiController = new APIController(orgContext)
@@ -190,12 +192,19 @@ class MyComponents(context: Context, narthexDataDir: File, datadogConfig: Option
     val crunchWhiteSpace = configuration.getBoolean("crunchWhiteSpace").getOrElse(true)
     val concurrencyLimit = configuration.getInt("concurrencyLimit").getOrElse(3)
 
+    val datasetTypes: List[String] = configuration.getStringList("datasetTypes").map(_.asScala.toList).getOrElse(List())
+    datasetTypes.foreach(datasetType => {
+      if(!allSupportedDatasetTypes(datasetType)) {
+        throw new IllegalStateException(s"Unsupported dataset type: $datasetType")
+      }
+    })
+
     AppConfig(
       harvestTimeout, true, rdfBaseUrl,
       configStringNoSlash("naveApiUrl"), configStringNoSlash("naveAuthToken"),
       configuration.getBoolean("mockBulkApi").getOrElse(false),
       narthexDataDir, configString("orgId"), narthexDomain, naveDomain, enableIncrementalHarvest,
-      crunchWhiteSpace, concurrencyLimit)
+      crunchWhiteSpace, concurrencyLimit, datasetTypes)
   }
 
   private def configFlag(name: String): Boolean = configuration.getBoolean(name).getOrElse(false)
@@ -218,7 +227,7 @@ case class AppConfig(harvestTimeOut: Long, useBulkApi: Boolean, rdfBaseUrl: Stri
                      naveApiUrl: String, naveApiAuthToken: String, mockBulkApi: Boolean,
                      narthexDataDir: File, orgId: String,
                      narthexDomain: String, naveDomain: String, enableIncrementalHarvest: Boolean,
-                     crunchWhiteSpace: Boolean, concurrencyLimit: Int) {
+                     crunchWhiteSpace: Boolean, concurrencyLimit: Int, supportedDatasetTypes: List[String]) {
 
   def nxUriPrefix: String = s"$rdfBaseUrl/resource"
 }

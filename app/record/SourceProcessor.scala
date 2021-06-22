@@ -27,6 +27,7 @@ import dataset.SipRepo.URIErrorsException
 import eu.delving.groovy.DiscardRecordException
 import organization.OrgContext
 import nxutil.Utils.actorWork
+import triplestore.GraphProperties.datasetType
 import org.apache.commons.io.FileUtils.deleteQuietly
 import org.joda.time.{DateTime, LocalDateTime}
 import org.xml.sax.SAXException
@@ -204,7 +205,7 @@ class SourceProcessor(val datasetContext: DatasetContext,
             "localId" -> localId,
             "dataset" -> spec,
             "graphUri" -> graphUri,
-            "type" -> "narthex_record",
+            "type" -> dsInfo.getLiteralProp(datasetType).getOrElse("narthex_record").toString(),
             "action" -> "index",
             "graphMimeType" -> "application/ld+json",
             //"contentHash" -> localHash.toString,

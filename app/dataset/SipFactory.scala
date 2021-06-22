@@ -44,38 +44,70 @@ object SipFactory {
     name: String,
     provider: String,
     dataProvider: String,
+    dataProviderURL: String,
     language: String,
     rights: String,
+    dataType: String,
     orgId: String
     )
 
   object SipGenerationFacts {
     def apply(info: NodeSeq) = {
       val meta = info \ "metadata"
-      new SipGenerationFacts(
+      val facts = new SipGenerationFacts(
         spec = (info \ "@name").text,
         prefix = (info \ "character" \ "prefix").text,
         name = (meta \ "name").text,
         provider = (meta \ "provider").text,
         dataProvider = (meta \ "dataProvider").text,
+        dataProviderURL = (meta \ "dataProviderURL").text,
         language = (meta \ "language").text,
         rights = (meta \ "rights").text,
+        dataType = (meta \ "type").text,
         orgId = (meta \ "orgId").text
       )
+      val factsString =
+        s"""NodeSeq->spec=${facts.spec}
+           |name=${facts.name}
+           |provider=${facts.provider}
+           |dataProvider=${facts.dataProvider}
+           |dataProviderURL=${facts.dataProviderURL}
+           |language=${facts.language}
+           |rights=${facts.rights}
+           |type=${facts.dataType}}
+           |orgId=${facts.orgId}
+           |""".stripMargin
+      System.out.println(factsString)
+      facts
     }
 
     def apply(dsInfo: DsInfo) = {
       def info(prop: NXProp) = dsInfo.getLiteralProp(prop).getOrElse("")
-      new SipGenerationFacts(
+      val facts = new SipGenerationFacts(
         spec = dsInfo.spec,
         prefix = info(datasetMapToPrefix),
         name = info(datasetName),
         provider = info(datasetAggregator),
         dataProvider = info(datasetOwner),
+        dataProviderURL = info(datasetDataProviderURL),
         language = info(datasetLanguage),
         rights = info(datasetRights),
+        dataType = info(datasetType),
         orgId =info(orgId) 
       )
+      val factsString =
+        s"""DsInfo->spec=${facts.spec}
+           |name=${facts.name}
+           |provider=${facts.provider}
+           |dataProvider=${facts.dataProvider}
+           |dataProviderURL=${facts.dataProviderURL}
+           |language=${facts.language}
+           |rights=${facts.rights}
+           |type=${facts.dataType}
+           |orgId=${facts.orgId}
+           |""".stripMargin
+      System.out.println(factsString)
+      facts
     }
   }
 
@@ -112,9 +144,11 @@ class SipPrefixRepo(home: File, rdfBaseUrl: String, ws: WSAPI)(implicit ec: Exec
          |name=${facts.name}
          |provider=${facts.provider}
          |dataProvider=${facts.dataProvider}
+         |dataProviderURL=${facts.dataProviderURL}
          |language=${facts.language}
          |schemaVersions=$schemaVersions
          |rights=${facts.rights}
+         |type=${facts.dataType}
          |baseUrl=${rdfBaseUrl}
          |orgId=${facts.orgId}
          |""".stripMargin
@@ -128,11 +162,13 @@ class SipPrefixRepo(home: File, rdfBaseUrl: String, ws: WSAPI)(implicit ec: Exec
     map.put("name", facts.name)
     map.put("provider", facts.provider)
     map.put("dataProvider", facts.dataProvider)
+    map.put("dataProviderURL", facts.dataProviderURL)
     map.put("language", facts.language)
     map.put("schemaVersions", schemaVersions)
     map.put("rights", facts.rights)
     map.put("baseUrl", rdfBaseUrl)
     map.put("orgId", facts.orgId)
+    map.put("type", facts.dataType)
     map
   }
 

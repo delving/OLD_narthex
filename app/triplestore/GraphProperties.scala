@@ -61,7 +61,9 @@ object GraphProperties {
   val datasetName = NXProp("datasetName")
   val datasetDescription = NXProp("datasetDescription")
   val datasetOwner = NXProp("datasetOwner")
+  val datasetDataProviderURL = NXProp("datasetDataProviderURL")
   val datasetAggregator = NXProp("datasetAggregator")
+  val datasetType = NXProp("datasetType")
 
   val datasetLanguage = NXProp("datasetLanguage")
   val datasetRights = NXProp("datasetRights")
